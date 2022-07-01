@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsNumber, Length } from "class-validator";
+import { BookEntity } from "../book/book.entity";
 
 export class CreateUserDTO{
     
@@ -11,5 +12,6 @@ export class CreateUserDTO{
     @IsNotEmpty()
     isSubscribed: boolean
 
+    books: BookEntity[]
     
 }

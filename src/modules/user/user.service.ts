@@ -1,23 +1,35 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { BookEntity } from '../book/book.entity';
 import { CreateUserDTO } from './create-user.dto';
 import { UserEntity } from './user.entity';
+import { UserRepository } from './UserRepository';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(UserEntity) 
-        private userRepository: Repository<UserEntity>
+        private readonly userRepository: UserRepository
     ){}
 
     async getAllUsers(): Promise<UserEntity[]> {
-        return await this.userRepository.find()
+        return await this.userRepository.find({
+            relations: {
+                books: true
+            }
+        })
     } 
 
-    async getUserById(id: number): Promise<UserEntity> {
-        const user = await this.userRepository.findOneBy({id})
+    async getUserById(id: number): Promise<any> {
+        const user = await this.userRepository.find({
+            where: {
+                id
+            },
+            relations: {
+                books: true
+            }
+        })
 
         if(user){
             return user
@@ -26,15 +38,18 @@ export class UserService {
     } 
 
     async createUser(user: CreateUserDTO ): Promise<UserEntity>{
+
         return await this.userRepository.save(user) 
     }
 
     async updateUser(id: number, createUserDTO: CreateUserDTO){
         await this.userRepository.update(id, createUserDTO)
+        return {msg: `Пользователь с id=${id} был отредактирован.`}
     }
 
     async deleteUser(id: number){
-        return this.userRepository.delete(id)
+        await this.userRepository.delete(id)
+        return {msg: `Пользователь с id=${id} был удален.`}
     }
 
     //3.Метод для покупки абонимента
@@ -45,4 +60,6 @@ export class UserService {
             .where(`id = ${id}`)
             .execute()
     }
+
+    
 }

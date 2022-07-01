@@ -1,8 +1,8 @@
-import { IsNotEmpty, IsNumber, Length } from "class-validator";
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Length } from "class-validator";
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { UserEntity } from "../user/user.entity";
 
-@Entity('books')
+@Entity({name: 'books'})
 export class BookEntity extends BaseEntity{
 
     @PrimaryGeneratedColumn()
@@ -20,7 +20,14 @@ export class BookEntity extends BaseEntity{
     })
     isTaken: boolean
 
-    @ManyToOne(() => UserEntity, (user: UserEntity) => user.books, {onDelete: 'SET NULL'})
+    @ManyToOne(
+        () => UserEntity, 
+        user => user.books, 
+        {
+            onDelete: 'CASCADE',
+            nullable: true
+        }
+    )
     user: UserEntity
 
 }

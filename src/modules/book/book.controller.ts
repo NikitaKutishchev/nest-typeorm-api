@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { BookEntity } from './book.entity';
 import { BookService } from './book.service';
 import { CreateBookDTO } from './create-book.dto';
@@ -9,7 +9,7 @@ export class BookController {
 
     // Метод для получения списка всех книг
     @Get('')
-    async getAllUsers(): Promise<BookEntity[]> {
+    async getAllBooks(): Promise<BookEntity[]> {
         return await this.bookService.getAllBooks()
     } 
 
@@ -24,5 +24,26 @@ export class BookController {
     @UsePipes(ValidationPipe)
     async createBook(@Body() book: CreateBookDTO): Promise<BookEntity>{
         return await this.bookService.createBook(book)
+    }
+
+    @Delete('/:id')
+    @UsePipes(ValidationPipe)
+    async deleteUser(@Param('id', ParseIntPipe) id: number){
+        return this.bookService.deleteBook(id)
+    }
+
+    //7. Метод для добавления книги пользователю
+    @Put('/:bookId/addBookToUser/:userId')
+    async addBookToTheUser(
+        @Param('userId', ParseIntPipe) userId: number, 
+        @Param('bookId', ParseIntPipe) bookId: number
+    ){
+        return await this.bookService.addBookToTheUser(userId, bookId)
+    }
+
+    //8. Метод для возвращения книги
+    @Put('/:id/return')
+    async returnBook(@Param('id', ParseIntPipe) id: number){
+        return this.bookService.returnBook(id)
     }
 }

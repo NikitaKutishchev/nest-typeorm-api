@@ -20,7 +20,12 @@ export class UserEntity extends BaseEntity {
     isSubscribed: boolean
 
 
-    @OneToMany(()=>BookEntity, (book: BookEntity) => book.user)
-    books: BookEntity[]
+    @OneToMany(()=>BookEntity, (book: BookEntity) => book.user, {
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+    })
+    books: Array<BookEntity>
+
+
 
 }

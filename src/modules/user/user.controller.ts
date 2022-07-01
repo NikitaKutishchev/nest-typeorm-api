@@ -45,8 +45,11 @@ export class UserController {
     }
 
     //3.Запрос для покупки абонимента
-    @Put('/subscribe/:id')
+    @Put('/:id/subscribe')
     async subscribeUser(@Param('id', ParseIntPipe) id: number){
         await this.userService.subscribeUser(id)
+
+        return {msg: `Пользователь с id=${id} купил абонимент.`}
     }
+
 }
