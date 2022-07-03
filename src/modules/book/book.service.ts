@@ -67,7 +67,7 @@ export class BookService {
     async createBook(book: CreateBookDTO ){
         await this.bookRepository.save(book) 
     }
-    
+
 
     /**
      * 
@@ -93,7 +93,8 @@ export class BookService {
      * @param bookId - айди книги, которая добавляется пользователю
      * @returns Возвращает результат выполнения метода
      * 
-     * Метод добавления книги пользователю с отношением OneToMany-ManyToOne
+     * Метод добавления книги пользователю с отношением OneToMany-ManyToOne.
+     * Запрос PUT роут books/:bookId/addBookToUser/:userId
      */
     async addBookToTheUser(userId: number, bookId: number) {
 
@@ -125,6 +126,7 @@ export class BookService {
      * @returns информацию о выполнении метода
      * 
      * Метод для возвращения книги обратно в библиотеку.
+     * Запрос PUT роут books/:id/return
      */
     async returnBook(id: number){
 
