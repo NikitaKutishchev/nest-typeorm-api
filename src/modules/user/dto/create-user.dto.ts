@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, Length } from "class-validator";
-import { BookEntity } from "../book/book.entity";
+import { BookEntity } from "../../book/book.entity";
 
 export class CreateUserDTO{
     

@@ -5,7 +5,7 @@ import { UserEntity } from "../user/user.entity";
 import { UserRepository } from "../user/UserRepository";
 import { BookEntity } from "./book.entity";
 import { BookRepository } from "./BookRepository";
-import { CreateBookDTO } from "./create-book.dto";
+import { CreateBookDTO } from "./dto/create-book.dto";
 
 
 
@@ -18,7 +18,12 @@ export class BookService {
         private readonly userRepository: UserRepository,
     ){}
 
-
+    /**
+     * Метод для получения всех книг из библиотеки с информацией о том, находится ли конкретная 
+     * книга в свободном доступе или же ее взял какой-то пользователь. 
+     * 
+     * Для заупуска метода необходимо отправить GET запрос по роуту /books 
+     */
     async getAllBooks(): Promise<BookEntity[]> {
         return await this.bookRepository.find({
             relations: {
@@ -28,6 +33,12 @@ export class BookService {
     } 
 
 
+    /**
+     * 
+     * @param id - айди книги, информацию о которой нужно получить.
+     * @returns Метод возвращает информацию о книги по ее айди. Для вызова метода getBookById необходимо
+     * отправить GET запрос по роуту /books/:id
+     */
     async getBookById(id: number): Promise<any> {
         const book = await this.bookRepository.find({
             where: {
@@ -44,21 +55,46 @@ export class BookService {
         throw new HttpException('Книга с таким id не найдена ', HttpStatus.NOT_FOUND);
     } 
 
-
+    /**
+     * 
+     * @param book - Книга, передаваемая в запросе, где
+     * @param book.id - id книги, который генерируется автоматически,
+     * @param book.title - название книги (обязательное поле),
+     * @param book.isTaken - поле типа boolean с дефолтным значением false
+     * 
+     * Метод создает новую книгу в бд по POST запросу /books/create
+     */
     async createBook(book: CreateBookDTO ){
-        return await this.bookRepository.save({...book, "userId": book["userId"]}) 
+        await this.bookRepository.save(book) 
     }
+    
 
+    /**
+     * 
+     * @param id - айди книги
+     * @returns - информацию о конечном результате 
+     * 
+     * Метод удаляет книгу из списка по DELETE запросу по роуту /books/:id
+     */
     async deleteBook(id: number){
         const book = await this.bookRepository.findOneBy({id})
 
         if(book){
-            return this.bookRepository.delete(id)
+            this.bookRepository.delete(id)
+            return {msg: `Книга с id=${id} была удалена из списка`}
         } 
         throw new HttpException('Книга с таким id не найдена ', HttpStatus.NOT_FOUND);
     }
 
 
+    /**
+     * 
+     * @param userId - айди пользователя, которомы добавляется книга
+     * @param bookId - айди книги, которая добавляется пользователю
+     * @returns Возвращает результат выполнения метода
+     * 
+     * Метод добавления книги пользователю с отношением OneToMany-ManyToOne
+     */
     async addBookToTheUser(userId: number, bookId: number) {
 
         const book = await this.bookRepository.findOneBy({id: bookId})
@@ -83,7 +119,13 @@ export class BookService {
 
     }
 
-
+    /**
+     * 
+     * @param id - айди книги
+     * @returns информацию о выполнении метода
+     * 
+     * Метод для возвращения книги обратно в библиотеку.
+     */
     async returnBook(id: number){
 
         const book = await this.bookRepository.findOneBy({id})
@@ -91,14 +133,15 @@ export class BookService {
         if(!book){
             throw new HttpException(`Книга с id=${id} не найдена `, HttpStatus.NOT_FOUND)
         }
-        if(book.user === null) return {msg: `Книга с id=${id} не занята. `}
+        if(!book.isTaken) return {msg: `Книга с id=${id} не занята. `}
 
         book.user = null
         book.isTaken = false
 
         await this.bookRepository.save(book)
 
-        return {msg: `Книга ${book.id} была возвращена обратно`}
+        return {
+            msg: `Книга ${book.id} была возвращена обратно`}
 
     }
     

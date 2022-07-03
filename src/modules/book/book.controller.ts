@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { BookEntity } from './book.entity';
 import { BookService } from './book.service';
-import { CreateBookDTO } from './create-book.dto';
+import { CreateBookDTO } from './dto/create-book.dto';
 
 @Controller('books')
 export class BookController {
@@ -22,8 +22,8 @@ export class BookController {
     // Метод для создания книги
     @Post('/create')
     @UsePipes(ValidationPipe)
-    async createBook(@Body() book: CreateBookDTO): Promise<BookEntity>{
-        return await this.bookService.createBook(book)
+    async createBook(@Body() book: CreateBookDTO): Promise<void>{
+        await this.bookService.createBook(book)
     }
 
     @Delete('/:id')
